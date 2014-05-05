@@ -23,8 +23,8 @@ var GE = (function(GE){
 		this.renderQueue[layer].push(renderable);
 	};
 	CanvasRenderSystem.prototype.update = function(delta) {
-		this.context.fillStyle = "#ffffff";
-		this.context.fillRect(0,0,this.canvasWidth,this.canvasHeight);
+		//this.context.fillStyle = "rgba(0,0,0,0)";
+		this.context.clearRect(0,0,this.canvasWidth,this.canvasHeight);
 
 		this.context.save();
 
@@ -40,7 +40,6 @@ var GE = (function(GE){
 		if(this.cameraSystem.rotationAxis[2] == 1){
 			this.context.rotate(this.cameraSystem.rotation);
 		}
-		this.context.scale(1, -1);
 		this.context.translate(-p[0],-p[1]);
 
 		for(var i = 0, l = this.renderQueue.length; i < l; i++){
@@ -52,6 +51,14 @@ var GE = (function(GE){
 		}
 
 		this.context.restore();
+
+		if(this.renderQueue.overlay){
+			for(var j = 0, n = this.renderQueue.overlay && this.renderQueue.overlay.length; j < n; j++){
+				this.context.save();
+				this.renderQueue.overlay[j].call(this, this.context);
+				this.context.restore();
+			}
+		}
 
 		this.renderQueue = [];
 	};

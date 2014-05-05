@@ -38,6 +38,34 @@ var GE = (function(GE){
 		}
 	};
 
+	var WorldBoundsComponent = GE.Comp.WorldBoundsComponent = function WorldBoundsComponent (width, height, bounds) {
+		this.ax = width / 2;
+		this.ay = height / 2;
+		this.bx1 = bounds[0] + this.ax;
+		this.by1 = bounds[1] + this.ay;
+		this.bx2 = bounds[2] - this.ax;
+		this.by2 = bounds[3] - this.ay;
+	};
+	WorldBoundsComponent.prototype = new GE.GameComponent();
+	WorldBoundsComponent.prototype.update = function(parent, delta) {
+		if(parent.position[0] < this.bx1){
+			parent.position[0] = this.bx1;
+			parent.velocity[0] = 0;
+		}
+		else if(parent.position[0] > this.bx2){
+			parent.position[0] = this.bx2;
+			parent.velocity[0] = 0;
+		}
+		if(parent.position[1] < this.by1){
+			parent.position[1] = this.by1;
+			parent.velocity[1] = 0;
+		}
+		else if(parent.position[1] > this.by2){
+			parent.position[1] = this.by2;
+			parent.velocity[1] = 0;
+		}
+	};
+
 	var WorldWrapComponent = GE.Comp.WorldWrapComponent = function WorldWrapComponent (bounds) {
 		this.ax = bounds[0];
 		this.ay = bounds[1];

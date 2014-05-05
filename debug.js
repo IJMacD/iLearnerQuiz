@@ -71,5 +71,24 @@ var GE = (function(GE){
 		}
 	};
 
+
+	function DebugDrawDataComponent (renderSystem){
+		this.renderSystem = renderSystem;
+	}
+	GEC.DebugDrawDataComponent = DebugDrawDataComponent;
+	DebugDrawDataComponent.prototype = new GameComponent();
+	DebugDrawDataComponent.prototype.update = function(parent, delta) {
+		if(GE.DEBUG){
+			this.renderSystem.push(function(context){
+				context.strokeStyle = "#ffffff";
+				context.fillStyle = "#ff0000";
+				context.fillText("x: " + parent.position[0], 10, 10);
+				context.fillText("y: " + parent.position[1], 10, 20);
+				context.fillText("Vx: " + parent.velocity[0], 10, 30);
+				context.fillText("Vy: " + parent.velocity[1], 10, 40);
+			}, "overlay");
+		}
+	};
+
 	return GE;
 }(GE || {}));

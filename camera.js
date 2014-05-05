@@ -19,6 +19,7 @@ var GE = (function(GE){
 		this.scaleX = this.scale;
 		this.scaleY = this.scale;
 		this.rotation = 0;
+    	this.rotationAxis = [1,0,0];
 		// this.angle = 0;
 		// this.rotMat = Matrix.rotationMatrix(this.rotation);
 		// this.scaleMatrix = Matrix.scaleMatrix(this.scaleX, this.scaleY);
