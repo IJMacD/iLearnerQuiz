@@ -5,8 +5,50 @@ var GE = (function(GE){
 	var GameComponent = GE.GameComponent,
 		GEC = GE.Comp;
 
+	GameComponent.create(function DebugDrawPathComponent(renderSystem, path){
+		this.renderSystem = renderSystem;
+		this.path = path;
+	},{
+		update: function(parent, delta){
+			if(GE.DEBUG){
+				this.renderSystem.strokePath(this.path, "#000000");
+			}
+		}
+	});
+	GameComponent.create(function DebugDrawPathNormalsComponent(renderSystem, path){
+		this.renderSystem = renderSystem;
+		this.path = path;
+	},{
+		update: function(parent, delta){
+			var c = this.path,
+				l = c.length;
+			if(GE.DEBUG){
+				this.renderSystem.push(function(context){
+					context.strokeStyle = "#08f";
+					context.beginPath();
+					for(i=0;i<l-3;i+=2){
+						var x1 = c[i],
+							y1 = c[i+1],
+							x2 = c[i+2],
+							y2 = c[i+3],
+							dx = x2 - x1,
+							dy = y2 - y1,
+							mx = x1 + dx * 0.5,
+							my = y1 + dy * 0.5,
+							mag = Math.sqrt(dy * dy + dx * dx),
+							nx = -dy / mag,
+							ny = dx / mag;
+						context.moveTo(mx,my);
+						context.lineTo(mx+nx*30,my+ny*30);
+					}
+					context.stroke();
+				});
+			}
+		}
+	});
 
-	function DebugDrawPathComponent (renderSystem, object){
+
+	function DebugDrawTrailComponent (renderSystem, object){
 		this.path = [];
 		this.pathSize = 1000;
 		this.pathIndex = 0;
@@ -18,14 +60,14 @@ var GE = (function(GE){
 		else
 			this.relativeTo = vec2.create();
 	}
-	GEC.DebugDrawPathComponent = DebugDrawPathComponent;
-	DebugDrawPathComponent.prototype = new GameComponent();
-	DebugDrawPathComponent.prototype.update = function(parent, delta) {
+	GEC.DebugDrawTrailComponent = DebugDrawTrailComponent;
+	DebugDrawTrailComponent.prototype = new GameComponent();
+	DebugDrawTrailComponent.prototype.update = function(parent, delta) {
 		if(GE.DEBUG){
 			var px = parent.position[0],
-				py = -parent.position[2],
+				py = parent.position[1],
 				vx = parent.velocity[0],
-				vy = -parent.velocity[2],
+				vy = parent.velocity[1],
 				ax = (vx - this.lastVx)/delta,
 				ay = (vy - this.lastVy)/delta,
 				rx = this.relativeTo[0],
@@ -33,7 +75,7 @@ var GE = (function(GE){
 				skip = this.pathIndex % this.pathSize,
 				path = [px, py];
 
-			// Draw Path
+			// Draw Trail
 			if(this.pathIndex > this.pathSize){
 				for(var i = this.pathSize-1;i>=0;i--){
 					var index = (i + skip + this.pathSize) % this.pathSize;
@@ -52,18 +94,18 @@ var GE = (function(GE){
 			}
 
 			if(rx || ry)
-				this.renderSystem.strokePath(path,"#CCF",0);
+				this.renderSystem.strokePath(path,"#CCF");
 			else
-				this.renderSystem.strokePath(path,"#CCC",0);
+				this.renderSystem.strokePath(path,"#CCC");
 
 			this.pathIndex++;
 			this.path[skip] = [px-rx,py-ry];
 
 			// Draw Velocity
-			this.renderSystem.strokePath([px, py, px+vx*100, py+vy*100], "rgba(0,128,255,0.7)",0);
+			this.renderSystem.strokePath([px, py, px+vx*100, py+vy*100], "rgba(0,128,255,0.7)");
 
 			// Draw Acceleration
-			this.renderSystem.strokePath([px, py, px+ax*4e5, py+ay*4e5], "rgba(0,255,0,0.7)",0);
+			this.renderSystem.strokePath([px, py, px+ax*4e5, py+ay*4e5], "rgba(0,255,0,0.7)");
 			this.lastVx = vx;
 			this.lastVy = vy;
 		}else{
@@ -89,6 +131,26 @@ var GE = (function(GE){
 			}, "overlay");
 		}
 	};
+
+	GameComponent.create(function DebugDrawCenterComponent (renderSystem){
+		this.renderSystem = renderSystem;
+	}, {
+		update: function(parent, delta) {
+			if(GE.DEBUG){
+				this.renderSystem.push(function(context){
+					context.strokeStyle = "#ffffff";
+					context.beginPath();
+					context.moveTo(parent.position[0], parent.position[1]-10);
+					context.lineTo(parent.position[0], parent.position[1]+10);
+					context.stroke();
+					context.beginPath();
+					context.moveTo(parent.position[0]-10, parent.position[1]);
+					context.lineTo(parent.position[0]+10, parent.position[1]);
+					context.stroke();
+				});
+			}
+		}
+	});
 
 	return GE;
 }(GE || {}));

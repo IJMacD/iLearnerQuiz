@@ -39,8 +39,8 @@ var GE = (function(GE){
 	};
 
 	var WorldBoundsComponent = GE.Comp.WorldBoundsComponent = function WorldBoundsComponent (width, height, bounds) {
-		this.ax = width / 2;
-		this.ay = height / 2;
+		this.ax = 0;width / 2;
+		this.ay = 0;height / 2;
 		this.bx1 = bounds[0] + this.ax;
 		this.by1 = bounds[1] + this.ay;
 		this.bx2 = bounds[2] - this.ax;

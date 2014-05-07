@@ -11,6 +11,7 @@ var GE = (function(GE){
 		var that = this;
 		$(window).on("keydown", function(e){
 			that.lastKey = e.which;
+			e.preventDefault();
 		});
 	}
 	InputSystem.prototype = new GE.GameObject();
