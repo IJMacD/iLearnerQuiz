@@ -57,10 +57,19 @@ var GE = (function(GE){
 				u = q_p_r[2] / r_s[2];
 				if(t >= 0 && t <= 1 && u >= 0 && u <= 1)
 				{
-					parent.position[0] = this.lastX;
-					parent.position[1] = this.lastY;
 					// http://stackoverflow.com/questions/573084/how-to-calculate-bounce-angle
 					vec2.normalize(n, r);
+					
+					if(n[0] == 0){
+						// vertical surface
+						parent.position[0] = this.lastX;
+					} else if(n[1] == 0) {
+						// horizontal surface
+						parent.position[1] = this.lastY;
+					} else {
+						parent.position[0] = this.lastX;
+						parent.position[1] = this.lastY;
+					}
 					// rotate 90 deg
 					vec2.set(n, -n[1], n[0]);
 					vec2.copy(v, parent.velocity);

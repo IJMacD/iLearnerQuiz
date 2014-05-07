@@ -104,6 +104,16 @@ $(function() {
             return;
         }
 
+        if(this.sprites.stopLeft && parent.velocity[0] < 0 && parent.velocity[0] > -epsilon){
+            parent.sprite = this.sprites.stopLeft;
+            return;
+        }
+
+        if(this.sprites.stopRight && parent.velocity[0] > 0 && parent.velocity[0] < epsilon){
+            parent.sprite = this.sprites.stopRight;
+            return;
+        }
+
         if(this.sprites.stop && Math.abs(parent.velocity[0]) < epsilon){
             parent.sprite = this.sprites.stop;
             return;
@@ -143,16 +153,19 @@ $(function() {
         }
     };
 
-    GE.GameComponent.create(function PlayerComponent(){},
+    GE.GameComponent.create(function PlayerComponent(keyMap){
+		this.keyMap = keyMap
+	},
     {
         update: function(parent, delta){
-            if(inputSystem.lastKey == 37){
+			var keyMap = this.keyMap;
+            if(inputSystem.lastKey == keyMap.left){
                 parent.velocity[0] = -0.1;
             }
-            else if(inputSystem.lastKey == 39){
+            else if(inputSystem.lastKey == keyMap.right){
                 parent.velocity[0] = 0.1;
             }
-            else if(inputSystem.lastKey == 32){
+            else if(inputSystem.lastKey == keyMap.jump){
                 parent.velocity[1] = -0.5;
             }
         }
@@ -161,31 +174,34 @@ $(function() {
 
 
     var playerSpriteDataRight = [
-            {i:textures[0].image,x:0,y:0,w:187,h:171,ox:50,oy:150},
-            {i:textures[0].image,x:187,y:0,w:187,h:171,ox:50,oy:150},
-            {i:textures[0].image,x:0,y:171,w:187,h:171,ox:50,oy:150},
-            {i:textures[0].image,x:187,y:171,w:187,h:171,ox:50,oy:150},
-            {i:textures[0].image,x:0,y:342,w:187,h:171,ox:50,oy:150},
-            {i:textures[0].image,x:187,y:342,w:187,h:171,ox:50,oy:150},
-            {i:textures[0].image,x:0,y:513,w:187,h:171,ox:50,oy:150},
-            // {x:187,y:513,w:187,h:171,ox:50,oy:150}
-            // {x:0,y:684,w:187,h:171,ox:50,oy:150},
-            // {x:187,y:684,w:187,h:171,ox:50,oy:150}
+            {i:textures[0].image,x:0,y:0,w:187,h:171,ox:50,oy:160},
+            {i:textures[0].image,x:187,y:0,w:187,h:171,ox:50,oy:160},
+            {i:textures[0].image,x:0,y:171,w:187,h:171,ox:50,oy:160},
+            {i:textures[0].image,x:187,y:171,w:187,h:171,ox:50,oy:160},
+            {i:textures[0].image,x:0,y:342,w:187,h:171,ox:50,oy:160},
+            {i:textures[0].image,x:187,y:342,w:187,h:171,ox:50,oy:160},
+            {i:textures[0].image,x:0,y:513,w:187,h:171,ox:50,oy:160},
+            // {x:187,y:513,w:187,h:171,ox:50,oy:160}
+            // {x:0,y:684,w:187,h:171,ox:50,oy:160},
+            // {x:187,y:684,w:187,h:171,ox:50,oy:160}
         ],
         playerSpriteDataLeft = [
-            {i:textures[3].image,x:0,y:0,w:187,h:171,ox:50,oy:150},
-            {i:textures[3].image,x:187,y:0,w:187,h:171,ox:50,oy:150},
-            {i:textures[3].image,x:0,y:171,w:187,h:171,ox:50,oy:150},
-            {i:textures[3].image,x:187,y:171,w:187,h:171,ox:50,oy:150},
-            {i:textures[3].image,x:0,y:342,w:187,h:171,ox:50,oy:150},
-            {i:textures[3].image,x:187,y:342,w:187,h:171,ox:50,oy:150},
-            {i:textures[3].image,x:0,y:513,w:187,h:171,ox:50,oy:150},
-            // {x:187,y:513,w:187,h:171,ox:50,oy:150},
-            // {x:0,y:684,w:187,h:171,ox:50,oy:150},
-            // {x:187,y:684,w:187,h:171,ox:50,oy:150}
+            {i:textures[3].image,x:0,y:0,w:187,h:171,ox:80,oy:160},
+            {i:textures[3].image,x:187,y:0,w:187,h:171,ox:80,oy:160},
+            {i:textures[3].image,x:0,y:171,w:187,h:171,ox:80,oy:160},
+            {i:textures[3].image,x:187,y:171,w:187,h:171,ox:80,oy:160},
+            {i:textures[3].image,x:0,y:342,w:187,h:171,ox:80,oy:160},
+            {i:textures[3].image,x:187,y:342,w:187,h:171,ox:80,oy:160},
+            {i:textures[3].image,x:0,y:513,w:187,h:171,ox:80,oy:160},
+            // {x:187,y:513,w:187,h:171,ox:50,oy:160},
+            // {x:0,y:684,w:187,h:171,ox:50,oy:160},
+            // {x:187,y:684,w:187,h:171,ox:50,oy:160}
         ],
-        playerSpriteDataStop = [
-            {i:textures[0].image,x:187,y:171,w:187,h:171,ox:50,oy:150}
+        playerSpriteDataStopRight = [
+            {i:textures[0].image,x:187,y:171,w:187,h:171,ox:50,oy:160}
+        ],
+        playerSpriteDataStopLeft = [
+            {i:textures[3].image,x:187,y:171,w:187,h:171,ox:80,oy:160}
         ],
         aiSpritesMove = [
             {i:textures[1].image,x:0,y:0,w:83,h:158,ox:40,oy:140},
@@ -204,8 +220,18 @@ $(function() {
         world = {
             bounds: [0,0,2046,canvasHeight-100],
             background: [   0,   0,
-                         2046,   0,
+                         2146,   0,
+						 2146, 350,
+						 2046, 350,
                          2046, 300,
+						 1836, 300,
+						 1836, 236,
+						 1644, 236,
+						 1644, 300,
+						  800, 300,
+						  800, 236,
+						  608, 236,
+						  608, 300,
                             0, 300,
                             0,   0]
         };
@@ -254,7 +280,11 @@ $(function() {
 
     player.setPosition(10, 10);
 
-    player.addComponent(new GEC.PlayerComponent());
+    player.addComponent(new GEC.PlayerComponent({
+		left: 37,
+		right: 39,
+		jump: 32
+	}));
 
     player.addComponent(new GEC.GravityComponent());
 
@@ -265,13 +295,14 @@ $(function() {
     player.addComponent(new SpriteMovementComponent({
         moveLeft: playerSpriteDataLeft,
         moveRight: playerSpriteDataRight,
-        stop: playerSpriteDataStop
+        stopLeft: playerSpriteDataStopLeft,
+        stopRight: playerSpriteDataStopRight
     }));
     player.addComponent(new SpriteAnimationComponent(66));
     player.addComponent(new SpriteSheetRenderingComponent(renderSystem));
 
     player.spriteIndex = 0;
-    player.sprite = playerSpriteDataStop;
+    player.sprite = playerSpriteDataStopRight;
 
     player.addComponent(new GEC.DebugDrawTrailComponent(renderSystem));
     player.addComponent(new GEC.DebugDrawDataComponent(renderSystem));
@@ -281,6 +312,12 @@ $(function() {
     var ai = new GameObject();
 
     ai.setPosition(200, 200);
+
+    ai.addComponent(new GEC.PlayerComponent({
+		left: 65,
+		right: 68,
+		jump: 87
+	}));
 
     ai.addComponent(new SpriteMovementComponent({
         move: aiSpritesMove,
