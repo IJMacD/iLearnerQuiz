@@ -66,6 +66,7 @@ var GE = (function(GE){
 					} else if(n[1] == 0) {
 						// horizontal surface
 						parent.position[1] = this.lastY;
+						parent.isOnGround = true;
 					} else {
 						parent.position[0] = this.lastX;
 						parent.position[1] = this.lastY;
@@ -81,7 +82,7 @@ var GE = (function(GE){
 					vec2.scale(u, u, e);
 					// vec2.copy(parent.velocity, w);
 					vec2.subtract(parent.velocity, w, u);
-					break;
+					//break;
 				}
 			}
 		}

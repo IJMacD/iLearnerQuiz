@@ -13,7 +13,7 @@ $(function() {
         inputSystem,
         cameraSystem,
         renderSystem,
-        cameraDistance,
+        cameraDistance = 1000,
         lastTime = 0;
 
     function initCanvas(){
@@ -79,7 +79,10 @@ $(function() {
             goFullscreen();
             e.preventDefault();
         }
-    });
+    }).on("mousewheel", function(e){
+		cameraDistance = Math.min(Math.max(cameraDistance + e.originalEvent.deltaY, 300), 6000);
+		cameraSystem.setScale(1000/cameraDistance);
+	});
 
 
     function SpriteMovementComponent(sprites){
@@ -158,16 +161,21 @@ $(function() {
 	},
     {
         update: function(parent, delta){
-			var keyMap = this.keyMap;
-            if(inputSystem.lastKey == keyMap.left){
-                parent.velocity[0] = -0.1;
-            }
-            else if(inputSystem.lastKey == keyMap.right){
-                parent.velocity[0] = 0.1;
-            }
-            else if(inputSystem.lastKey == keyMap.jump){
-                parent.velocity[1] = -0.5;
-            }
+			var key = this.keyMap[inputSystem.lastKey];
+			if(key){
+				if(key == "left"){
+					parent.velocity[0] = -0.12;
+				}
+				else if(key == "right"){
+					parent.velocity[0] = 0.12;
+				}
+				else if(key == "jump"){
+					if(parent.isOnGround){
+						parent.velocity[1] = -0.5;
+						parent.isOnGround = false;
+					}
+				}
+			}
         }
     });
 
@@ -204,13 +212,13 @@ $(function() {
             {i:textures[3].image,x:187,y:171,w:187,h:171,ox:80,oy:160}
         ],
         aiSpritesMove = [
-            {i:textures[1].image,x:0,y:0,w:83,h:158,ox:40,oy:140},
-            {i:textures[1].image,x:83,y:0,w:86,h:154,ox:40,oy:140},
-            {i:textures[1].image,x:169,y:0,w:90,h:151,ox:40,oy:140},
-            {i:textures[1].image,x:259,y:0,w:87,h:138,ox:40,oy:140},
-            {i:textures[1].image,x:346,y:0,w:88,h:160,ox:40,oy:140},
-            {i:textures[1].image,x:0,y:160,w:87,h:154,ox:40,oy:140},
-            {i:textures[1].image,x:87,y:160,w:90,h:151,ox:40,oy:140},
+            {i:textures[1].image,x:0,y:0,w:83,h:158,ox:40,oy:150},
+            {i:textures[1].image,x:83,y:0,w:86,h:154,ox:40,oy:150},
+            {i:textures[1].image,x:169,y:0,w:90,h:151,ox:40,oy:150},
+            {i:textures[1].image,x:259,y:0,w:87,h:138,ox:40,oy:150},
+            {i:textures[1].image,x:346,y:0,w:88,h:160,ox:40,oy:150},
+            {i:textures[1].image,x:0,y:160,w:87,h:154,ox:40,oy:150},
+            {i:textures[1].image,x:87,y:160,w:90,h:151,ox:40,oy:150},
             // {x:177,y:160,w:85,h:140,ox:40,oy:140}
         ],
         aiSpritesStop = [
@@ -281,9 +289,10 @@ $(function() {
     player.setPosition(10, 10);
 
     player.addComponent(new GEC.PlayerComponent({
-		left: 37,
-		right: 39,
-		jump: 32
+		37: "left",
+		39: "right",
+		38: "jump",
+		32: "jump"
 	}));
 
     player.addComponent(new GEC.GravityComponent());
@@ -314,9 +323,9 @@ $(function() {
     ai.setPosition(200, 200);
 
     ai.addComponent(new GEC.PlayerComponent({
-		left: 65,
-		right: 68,
-		jump: 87
+		65: "left",
+		68: "right",
+		87: "jump"
 	}));
 
     ai.addComponent(new SpriteMovementComponent({
