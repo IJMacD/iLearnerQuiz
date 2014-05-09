@@ -70,6 +70,7 @@ var GE = (function(GE){
 					} else {
 						parent.position[0] = this.lastX;
 						parent.position[1] = this.lastY;
+						parent.isOnGround = true;
 					}
 					// rotate 90 deg
 					vec2.set(n, -n[1], n[0]);
