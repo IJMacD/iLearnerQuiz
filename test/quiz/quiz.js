@@ -170,10 +170,10 @@ $(function() {
 					parent.velocity[0] = 0.12;
 				}
 				else if(key == "jump"){
-					if(parent.isOnGround){
+					//if(parent.isOnGround){
 						parent.velocity[1] = -0.5;
 						parent.isOnGround = false;
-					}
+					//}
 				}
 			}
         }
@@ -243,10 +243,13 @@ $(function() {
 						  608, 300,
                             0, 300,
                             0,   0]
-        };
+        },
+
+        playerBounds = {left: -50, right: 50, top: -160, bottom: 0},
+        aiBounds = {left: -40, right: 43, top: -150, bottom: 0};
 
 
-
+    GE.DEBUG = true;
 
 
     inputSystem = new GE.InputSystem();
@@ -300,7 +303,7 @@ $(function() {
 
     player.addComponent(new GEC.MoveComponent());
 
-    player.addComponent(new GEC.BackgroundCollisionComponent(backgroundSystem));
+    player.addComponent(new GEC.BackgroundCollisionComponent(backgroundSystem, playerBounds));
 
     player.addComponent(new SpriteMovementComponent({
         moveLeft: playerSpriteDataLeft,
@@ -317,6 +320,7 @@ $(function() {
     player.addComponent(new GEC.DebugDrawTrailComponent(renderSystem));
     player.addComponent(new GEC.DebugDrawDataComponent(renderSystem));
     player.addComponent(new GEC.DebugDrawCenterComponent(renderSystem));
+    player.addComponent(new GEC.DebugDrawBoundsComponent(renderSystem, playerBounds));
 
 
     var ai = new GameObject();
@@ -344,9 +348,11 @@ $(function() {
     ai.addComponent(new GEC.MoveComponent());
     ai.setVelocity(0.11,0);
 
-    ai.addComponent(new GEC.BackgroundCollisionComponent(backgroundSystem));
+    ai.addComponent(new GEC.BackgroundCollisionComponent(backgroundSystem, aiBounds));
 
     ai.addComponent(new GEC.DebugDrawCenterComponent(renderSystem));
+
+    ai.addComponent(new GEC.DebugDrawBoundsComponent(renderSystem, aiBounds));
 
 
 

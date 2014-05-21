@@ -152,5 +152,31 @@ var GE = (function(GE){
 		}
 	});
 
+	GameComponent.create(function DebugDrawBoundsComponent (renderSystem, bounds){
+		this.renderSystem = renderSystem;
+		this.bounds = bounds;
+	}, {
+		update: function(parent, delta) {
+			var bounds = this.bounds,
+				pos = parent.position,
+				left = pos[0] + bounds.left,
+				right = pos[0] + bounds.right,
+				top = pos[1] + bounds.top,
+				bottom = pos[1] + bounds.bottom;
+			if(GE.DEBUG){
+				this.renderSystem.push(function(context){
+					context.strokeStyle = "#ffffff";
+					context.beginPath();
+					context.moveTo(left, top);
+					context.lineTo(right, top);
+					context.lineTo(right, bottom);
+					context.lineTo(left, bottom);
+					context.lineTo(left, top);
+					context.stroke();
+				});
+			}
+		}
+	});
+
 	return GE;
 }(GE || {}));
