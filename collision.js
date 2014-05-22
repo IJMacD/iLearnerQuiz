@@ -167,6 +167,13 @@ var GE = (function(GE){
 				}
 			}
 
+			left = currentPosition[0] + bounds.left;
+			right = currentPosition[0] + bounds.right;
+			top = currentPosition[1] + bounds.top;
+			bottom = currentPosition[1] + bounds.bottom;
+			centreX = (left + right) / 2;
+			centreY = (top + bottom) / 2;
+
 			// Special tests for more accurate alignment on slopes
 			// Test ray straight through centre of box vertically
 			hit = backgroundSystem.testCollision(centreX, top, centreX, bottom);
@@ -190,15 +197,17 @@ var GE = (function(GE){
 			// Now set the collision normals
 			if(horizontalHit && verticalHit){
 				parent.collisionNormal = vec2.create();
-				vec2.add(parent.collisionNormal, horizontalHit, verticalHit);
+				vec2.add(parent.collisionNormal, horizontalHit.normal, verticalHit.normal);
 				vec2.normalize(parent.collisionNormal, parent.collisionNormal);
 			}
 			else if(horizontalHit){
-				parent.collisionNormal = vec2.clone(horizontalHit);
+				parent.collisionNormal = vec2.clone(horizontalHit.normal);
 			}
 			else if(verticalHit){
-				parent.collisionNormal = vec2.clone(verticalHit);
+				parent.collisionNormal = vec2.clone(verticalHit.normal);
 			}
+
+			parent.touchingGround = !!(verticalHit && verticalHit.normal[1] < 0);
 		}
 
 		// save last position for next frame

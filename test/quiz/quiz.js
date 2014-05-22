@@ -107,12 +107,12 @@ $(function() {
             return;
         }
 
-        if(this.sprites.stopLeft && parent.velocity[0] < 0 && parent.velocity[0] > -epsilon){
+        if(this.sprites.stopLeft && -epsilon < parent.velocity[0] && parent.velocity[0] < 0){
             parent.sprite = this.sprites.stopLeft;
             return;
         }
 
-        if(this.sprites.stopRight && parent.velocity[0] > 0 && parent.velocity[0] < epsilon){
+        if(this.sprites.stopRight && 0 <= parent.velocity[0] && parent.velocity[0] < epsilon){
             parent.sprite = this.sprites.stopRight;
             return;
         }
@@ -164,16 +164,15 @@ $(function() {
 			var key = this.keyMap[inputSystem.lastKey];
 			if(key){
 				if(key == "left"){
-					parent.velocity[0] = -0.12;
+					parent.impulse[0] += -0.2;
 				}
 				else if(key == "right"){
-					parent.velocity[0] = 0.12;
+					parent.impulse[0] += 0.2;
 				}
 				else if(key == "jump"){
-					//if(parent.isOnGround){
-						parent.velocity[1] = -0.5;
-						parent.isOnGround = false;
-					//}
+					if(parent.touchingGround){
+						parent.impulse[1] -= 0.5;
+					}
 				}
 			}
         }
@@ -227,8 +226,8 @@ $(function() {
 
         world = {
             bounds: [0,0,2046,canvasHeight-100],
-            background: [   0,   0,
-                         2400,   0,
+            background: [   0,   -1000,
+                         2400,   -1000,
 						 2400, 500,
 						 2300, 500,
 						 2046, 350,
@@ -242,11 +241,11 @@ $(function() {
 						  608, 236,
 						  608, 300,
                             0, 300,
-                            0,   0]
+                            0,   -1000]
         },
 
-        playerBounds = {left: -50, right: 50, top: -160, bottom: 0},
-        aiBounds = {left: -40, right: 43, top: -150, bottom: 0};
+        playerBounds = {left: -50, right: 50, top: -160, bottom: 1},
+        aiBounds = {left: -40, right: 43, top: -150, bottom: 1};
 
 
     GE.DEBUG = true;
@@ -290,8 +289,12 @@ $(function() {
 
     var player = new GameObject();
 
-    player.setPosition(10, 10);
+    player.setPosition(100, 160);
 
+    player.spriteIndex = 0;
+    player.sprite = playerSpriteDataStopRight;
+
+	// Think
     player.addComponent(new GEC.PlayerComponent({
 		37: "left",
 		39: "right",
@@ -299,12 +302,19 @@ $(function() {
 		32: "jump"
 	}));
 
+	// Physics
     player.addComponent(new GEC.GravityComponent());
 
+	// Post-Physics
+    player.addComponent(new GEC.PhysicsComponent());
+
+	// Movement
     player.addComponent(new GEC.MoveComponent());
 
+	// Collision Detection
     player.addComponent(new GEC.BackgroundCollisionComponent(backgroundSystem, playerBounds));
 
+	// Animation
     player.addComponent(new SpriteMovementComponent({
         moveLeft: playerSpriteDataLeft,
         moveRight: playerSpriteDataRight,
@@ -312,11 +322,11 @@ $(function() {
         stopRight: playerSpriteDataStopRight
     }));
     player.addComponent(new SpriteAnimationComponent(66));
+
+	// Draw
     player.addComponent(new SpriteSheetRenderingComponent(renderSystem));
 
-    player.spriteIndex = 0;
-    player.sprite = playerSpriteDataStopRight;
-
+	// Debug
     player.addComponent(new GEC.DebugDrawTrailComponent(renderSystem));
     player.addComponent(new GEC.DebugDrawDataComponent(renderSystem));
     player.addComponent(new GEC.DebugDrawCenterComponent(renderSystem));
@@ -327,28 +337,31 @@ $(function() {
 
     ai.setPosition(200, 200);
 
+    ai.setVelocity(0.11,0);
+
+    ai.spriteIndex = 0;
+    ai.sprite = aiSpritesStop;
+
     ai.addComponent(new GEC.PlayerComponent({
 		65: "left",
 		68: "right",
 		87: "jump"
 	}));
 
+    ai.addComponent(new GEC.GravityComponent());
+    ai.addComponent(new GEC.MoveComponent());
+
+    ai.addComponent(new GEC.BackgroundCollisionComponent(backgroundSystem, aiBounds));
+
+    ai.addComponent(new GEC.PhysicsComponent());
+
     ai.addComponent(new SpriteMovementComponent({
         move: aiSpritesMove,
         stop: aiSpritesStop
     }));
+
     ai.addComponent(new SpriteAnimationComponent(66));
     ai.addComponent(new SpriteSheetRenderingComponent(renderSystem));
-
-    ai.spriteIndex = 0;
-    ai.sprite = aiSpritesStop;
-
-    ai.addComponent(new GEC.GravityComponent());
-
-    ai.addComponent(new GEC.MoveComponent());
-    ai.setVelocity(0.11,0);
-
-    ai.addComponent(new GEC.BackgroundCollisionComponent(backgroundSystem, aiBounds));
 
     ai.addComponent(new GEC.DebugDrawCenterComponent(renderSystem));
 

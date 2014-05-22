@@ -10,6 +10,7 @@ var GE = (function(GE){
 		this.components = [];
 		this.position = vec3.create();
 		this.velocity = vec3.create();
+		this.impulse = vec3.create();
 		this.rotation = 0;
 		this.toBeRemoved = [];
 		this.life = 1;

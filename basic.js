@@ -8,8 +8,6 @@ var GE = (function(GE){
 
 	GameComponent.create(function GravityComponent(){},{
 		update: function(parent, delta) {
-			if(typeof parent.velocity[1] == "undefined")
-				parent.velocity[1] = 0;
 			parent.velocity[1] += 0.001*delta;
 		}
 	});
@@ -92,6 +90,55 @@ var GE = (function(GE){
 	}, {
 		update: function(parent, delta) {
 			parent.rotation = -this.target.rotation;
+		}
+	});
+
+	GameComponent.create(function PhysicsComponent() {
+		this.bounciness = 0.5;
+		this.frictionCoefficient = 0.5;
+	}, {
+		update: function(parent, delta) {
+
+			// Background Collisions
+			if(parent.collisionNormal && vec2.squaredLength(parent.collisionNormal) > 0){
+				// http://stackoverflow.com/questions/573084/how-to-calculate-bounce-angle
+
+				var n = parent.collisionNormal,
+					v = parent.velocity,
+					u = vec2.create(),
+					w = vec2.create(),
+					f = this.frictionCoefficient,
+					e = this.bounciness;
+
+				// u: Movement perpendicular to wall
+				vec2.scale(u, n, vec2.dot(n, v));
+				// w: Movement parallel to wall
+				vec2.subtract(w, v, u);
+
+				// Apply friction and bounciness
+				vec2.scale(w, w, f);
+				vec2.scale(u, u, e);
+
+				// Collision causes an impulse
+				// ---Impulse is sum of w and (-u)--
+				// vec2.add(parent.impulse, parent.impulse, w);
+				// vec2.subtract(parent.impulse, parent.impulse, u);
+
+				// New velocity is sum of w and (-u)
+				vec2.subtract(parent.velocity, w, u);
+			}
+
+			// Resolve Impulses
+			vec2.add(parent.velocity, parent.velocity, parent.impulse);
+			vec2.set(parent.impulse, 0, 0);
+
+			if(Math.abs(parent.velocity[0]) < 0.01){
+				parent.velocity[0] = 0;
+			}
+
+			if(Math.abs(parent.velocity[1]) < 0.01){
+				parent.velocity[1] = 0;
+			}
 		}
 	});
 
