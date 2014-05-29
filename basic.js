@@ -94,53 +94,73 @@ var GE = (function(GE){
 	});
 
 	GameComponent.create(function PhysicsComponent() {
-		this.bounciness = 0.5;
+		this.bounciness = 0.4;
 		this.frictionCoefficient = 0.5;
+		this.mass = 1;
 	}, {
 		update: function(parent, delta) {
 
 			// Background Collisions
 			if(parent.collisionNormal && vec2.squaredLength(parent.collisionNormal) > 0){
-				// http://stackoverflow.com/questions/573084/how-to-calculate-bounce-angle
 
-				var n = parent.collisionNormal,
-					v = parent.velocity,
-					u = vec2.create(),
-					w = vec2.create(),
-					f = this.frictionCoefficient,
-					e = this.bounciness;
+				var impulse = parent.impulse,
+					outImpulse = vec2.clone(impulse),
+					surfaceNormal = parent.collisionNormal,
+					relativeVelocity = vec2.clone(parent.velocity),
+					relativeDotNormal,
+					j,
+					mass = this.mass;
 
-				// u: Movement perpendicular to wall
-				vec2.scale(u, n, vec2.dot(n, v));
-				// w: Movement parallel to wall
-				vec2.subtract(w, v, u);
+				vec2.add(relativeVelocity, relativeVelocity, impulse);
 
-				// Apply friction and bounciness
-				vec2.scale(w, w, f);
-				vec2.scale(u, u, e);
+				relativeDotNormal = vec2.dot(relativeVelocity, surfaceNormal);
 
-				// Collision causes an impulse
-				// ---Impulse is sum of w and (-u)--
-				// vec2.add(parent.impulse, parent.impulse, w);
-				// vec2.subtract(parent.impulse, parent.impulse, u);
+				if(relativeDotNormal < 0){
+					j = (-(1 + this.bounciness) * relativeDotNormal) / vec2.squaredLength(surfaceNormal) * mass;
 
-				// New velocity is sum of w and (-u)
-				vec2.subtract(parent.velocity, w, u);
+					vec2.copy(outImpulse, surfaceNormal);
+					vec2.scale(outImpulse, outImpulse, j);
+					vec2.scale(outImpulse, outImpulse, 1 / mass);
+					vec2.add(outImpulse, outImpulse, impulse);
+				}
+
+				vec2.copy(parent.impulse, outImpulse);
 			}
 
 			// Resolve Impulses
-			vec2.add(parent.velocity, parent.velocity, parent.impulse);
+			var newVelocity = vec2.clone(parent.velocity);
+			vec2.add(newVelocity, newVelocity, parent.impulse);
+
+			if(parent.touchingGround){
+				var frictionCoeffecient = 0.025;
+				frictionCoeffecient *= delta;
+
+				// Friction = cofN, where cof = friction coefficient and N = force
+				// perpendicular to the ground.
+				var maxFriction = Math.abs(0.001) * this.mass * frictionCoeffecient;
+
+				if (maxFriction > Math.abs(newVelocity[0])) {
+					newVelocity[0] = 0;
+				} else {
+					newVelocity[0] = (newVelocity[0] - (maxFriction * sign(newVelocity[0])));
+				}
+			}
+
+			if(Math.abs(newVelocity[0]) < 0.01){
+				newVelocity[0] = 0;
+			}
+
+			if(Math.abs(newVelocity[1]) < 0.01){
+				newVelocity[1] = 0;
+			}
+			vec2.copy(parent.velocity, newVelocity);
 			vec2.set(parent.impulse, 0, 0);
-
-			if(Math.abs(parent.velocity[0]) < 0.01){
-				parent.velocity[0] = 0;
-			}
-
-			if(Math.abs(parent.velocity[1]) < 0.01){
-				parent.velocity[1] = 0;
-			}
 		}
 	});
+
+	function sign(x){
+		return x<0?-1:1;
+	}
 
 	return GE;
 }(GE || {}));

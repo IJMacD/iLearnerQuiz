@@ -83,7 +83,7 @@ var GE = (function(GE){
 			movingHorizontally = Math.abs(parent.velocity[0]) > Math.abs(parent.velocity[1]),
 			lastPosition = this.lastPosition,
 			currentPosition = parent.position,
-			delta = vec2.create(),
+			deltaPosition = vec2.create(),
 			bounds = this.bounds,
 			left = currentPosition[0] + bounds.left,
 			right = currentPosition[0] + bounds.right,
@@ -94,12 +94,14 @@ var GE = (function(GE){
 			horizontalHit,
 			verticalHit,
 			centreX = (left + right) / 2,
-			centreY = (top + bottom) / 2;
+			centreY = (top + bottom) / 2,
+			
+			TOUCHING_GROUND_DECAY = 500;
 
 		parent.collisionNormal = null;
 
 		if(vec2.squaredLength(lastPosition) > 0){
-			vec2.subtract(delta, currentPosition, lastPosition);
+			vec2.subtract(deltaPosition, currentPosition, lastPosition);
 
 			// Test ray from previous centre to current edge of box taking into account
 			// direction of movement.
@@ -111,12 +113,12 @@ var GE = (function(GE){
 				horizontalHit = backgroundSystem.testCollision(
 						lastPosition[0],
 						lastPosition[1],
-						delta[0] > 0 ? right : left,
+						deltaPosition[0] > 0 ? right : left,
 						lastPosition[1]
 					);
 
 				if(horizontalHit){
-					parent.position[0] = delta[0] > 0 ?
+					parent.position[0] = deltaPosition[0] > 0 ?
 						horizontalHit.position[0] - bounds.right :
 						horizontalHit.position[0] - bounds.left;
 				}
@@ -126,11 +128,11 @@ var GE = (function(GE){
 						lastPosition[0],
 						lastPosition[1],
 						lastPosition[0],
-						delta[1] > 0 ? bottom : top
+						deltaPosition[1] > 0 ? bottom : top
 					);
 
 				if(verticalHit){
-					parent.position[1] = delta[1] > 0 ?
+					parent.position[1] = deltaPosition[1] > 0 ?
 						verticalHit.position[1] - bounds.bottom :
 						verticalHit.position[1] - bounds.top;
 				}
@@ -143,11 +145,11 @@ var GE = (function(GE){
 						lastPosition[0],
 						lastPosition[1],
 						lastPosition[0],
-						delta[1] > 0 ? bottom : top
+						deltaPosition[1] > 0 ? bottom : top
 					);
 
 				if(verticalHit){
-					parent.position[1] = delta[1] > 0 ?
+					parent.position[1] = deltaPosition[1] > 0 ?
 						verticalHit.position[1] - bounds.bottom :
 						verticalHit.position[1] - bounds.top;
 				}
@@ -156,12 +158,12 @@ var GE = (function(GE){
 				horizontalHit = backgroundSystem.testCollision(
 						lastPosition[0],
 						lastPosition[1],
-						delta[0] > 0 ? right : left,
+						deltaPosition[0] > 0 ? right : left,
 						lastPosition[1]
 					);
 
 				if(horizontalHit){
-					parent.position[0] = delta[0] > 0 ?
+					parent.position[0] = deltaPosition[0] > 0 ?
 						horizontalHit.position[0] - bounds.right :
 						horizontalHit.position[0] - bounds.left;
 				}
@@ -179,7 +181,7 @@ var GE = (function(GE){
 			hit = backgroundSystem.testCollision(centreX, top, centreX, bottom);
 
 			if(hit){
-				parent.position[1] = delta[1] > 0 ?
+				parent.position[1] = deltaPosition[1] > 0 ?
 					hit.position[1] - bounds.bottom :
 					hit.position[1] - bounds.top;
 			}
@@ -188,7 +190,7 @@ var GE = (function(GE){
 			hit = backgroundSystem.testCollision(left, centreY, right, centreY);
 
 			if(hit){
-				parent.position[0] = delta[0] > 0 ?
+				parent.position[0] = deltaPosition[0] > 0 ?
 					hit.position[0] - bounds.right :
 					hit.position[0] - bounds.left;
 			}
@@ -207,7 +209,15 @@ var GE = (function(GE){
 				parent.collisionNormal = vec2.clone(verticalHit.normal);
 			}
 
-			parent.touchingGround = !!(verticalHit && verticalHit.normal[1] < 0);
+			if(verticalHit && verticalHit.normal[1] < 0){
+				parent.touchingGround = TOUCHING_GROUND_DECAY;
+			}
+			else {
+				parent.touchingGround -= delta;
+				if(parent.touchingGround < 0){
+					parent.touchingGround = 0;
+				}
+			}
 		}
 
 		// save last position for next frame

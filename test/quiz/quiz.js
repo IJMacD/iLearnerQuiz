@@ -164,14 +164,14 @@ $(function() {
 			var key = this.keyMap[inputSystem.lastKey];
 			if(key){
 				if(key == "left"){
-					parent.impulse[0] += -0.2;
+					parent.impulse[0] += -0.02;
 				}
 				else if(key == "right"){
-					parent.impulse[0] += 0.2;
+					parent.impulse[0] += 0.02;
 				}
 				else if(key == "jump"){
 					if(parent.touchingGround){
-						parent.impulse[1] -= 0.5;
+						parent.impulse[1] -= 0.05;
 					}
 				}
 			}
@@ -342,29 +342,37 @@ $(function() {
     ai.spriteIndex = 0;
     ai.sprite = aiSpritesStop;
 
+	// Think
     ai.addComponent(new GEC.PlayerComponent({
 		65: "left",
 		68: "right",
 		87: "jump"
 	}));
 
+	// Physics
     ai.addComponent(new GEC.GravityComponent());
+
+	// Post-Physics
+    ai.addComponent(new GEC.PhysicsComponent());
+	
+	// Movement
     ai.addComponent(new GEC.MoveComponent());
 
+	// Collision Detection
     ai.addComponent(new GEC.BackgroundCollisionComponent(backgroundSystem, aiBounds));
 
-    ai.addComponent(new GEC.PhysicsComponent());
-
+	// Animation
     ai.addComponent(new SpriteMovementComponent({
         move: aiSpritesMove,
         stop: aiSpritesStop
     }));
-
     ai.addComponent(new SpriteAnimationComponent(66));
+	
+	// Draw
     ai.addComponent(new SpriteSheetRenderingComponent(renderSystem));
 
+	// Debug
     ai.addComponent(new GEC.DebugDrawCenterComponent(renderSystem));
-
     ai.addComponent(new GEC.DebugDrawBoundsComponent(renderSystem, aiBounds));
 
 
